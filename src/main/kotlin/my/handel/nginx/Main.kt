@@ -69,12 +69,10 @@ data class LogNginx(
 fun main() {
 	println("Start Load Config: 'conf.properties'")
 	val properties = BufferedInputStream(FileInputStream("conf.properties")).use {
-		val properties = Properties()
-		properties.load(it)
-		properties
+		Properties().apply { load(it) }
 	}
 	val map = HashMap<String, MutableList<LogNginx>>()
-	for (file in getConfFileList((properties["path"] ?: "./logs").toString())) {
+	for (file in getConfFileList(properties.getProperty("path", "./logs"))) {
 		val name = file.name
 		println("Read File: $name")
 		BufferedReader(FileReader(file)).use {
@@ -92,7 +90,7 @@ fun main() {
 			}
 		}
 	}
-	(properties["target"] ?: "./result.yml").toString().writer().use {
+	properties.getProperty("target", "./result.yml").toString().writer().use {
 		for ((ip, list) in map) {
 			it.write(ip)
 			it.write(":\n")
